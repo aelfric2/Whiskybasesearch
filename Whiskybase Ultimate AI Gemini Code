@@ -1,26 +1,49 @@
 // ==UserScript==
-// @name         Whiskybase Ultimate AI V27.0 (Gemini Free)
-// @version      27.0
-// @description  Integration von Google Gemini Free Tier mit Fallback-Logik
+// @name         Whiskybase Ultimate AI V30.1 (Secure & Filtered)
+// @version      30.1
+// @description  Sichere Key-Speicherung, lokales Pre-Filtering aller Kategorien & Cache-Buster
 // @author       Gemini
 // @match        *://*/*
 // @grant        GM_xmlhttpRequest
-// @connect      generativelanguage.googleapis.com
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @connect      api.openai.com
 // @connect      gist.githubusercontent.com
 // ==/UserScript==
 
 (function() {
     'use strict';
-    const GEMINI_KEY = 'DEIN_GOOGLE_AI_STUDIO_KEY_HIER';
-    const DB_URL = 'https://gist.githubusercontent.com/aelfric2/5dd08669d7d4b4a9f3b25d1b98e91120/raw/0b6a6c1b14d2004587d4b8a798d2cd4dca09a1a7/whiskydb.json';
-    
-    let whiskyDB = [];
+    const DB_URL = 'https://gist.githubusercontent.com/aelfric2/5dd08669d7d4b4a9f3b25d1b98e91120/raw/whiskydb.json';
+    let whiskySources = [];
 
-    // DB Laden
+    // Key sicher verwalten
+    function getApiKey() {
+        let key = GM_getValue('openai_key', null);
+        if (!key) {
+            key = prompt("Whiskybase Ultimate AI: Bitte gib deinen OpenAI API-Key ein:");
+            if (key) GM_setValue('openai_key', key);
+        }
+        return key;
+    }
+
+    // Datenbank laden mit Cache-Buster (?t=Timestamp)
     GM_xmlhttpRequest({
         method: "GET",
-        url: DB_URL,
-        onload: (res) => { try { const data = JSON.parse(res.responseText); whiskyDB = Array.isArray(data) ? data : (data.whiskies || []); } catch(e) {} }
+        url: DB_URL + "?t=" + Date.now(),
+        onload: (res) => {
+            try {
+                const data = JSON.parse(res.responseText);
+                // Alles aus der JSON-Datei in ein flaches Array packen
+                let allTerms = [];
+                Object.keys(data).forEach(key => {
+                    if (Array.isArray(data[key])) {
+                        allTerms = allTerms.concat(data[key]);
+                    }
+                });
+                whiskySources = [...new Set(allTerms)];
+                console.log("Whiskybase AI: Datenbank geladen, Begriffe gefunden:", whiskySources.length);
+            } catch(e) { console.error("Whiskybase AI: JSON-Fehler", e); }
+        }
     });
 
     const btnStyle = "padding:6px 12px; background:#1a1a1a; color:#c9a050; border:1px solid #c9a050; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin:3px;";
@@ -32,60 +55,61 @@
     const container = document.createElement('div');
     container.style = 'position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:2147483648; display:none; background:#000; padding:10px; border-radius:8px; border:2px solid #c9a050;';
     document.body.appendChild(container);
-    
+
     const striktBtn = document.createElement('button'); striktBtn.innerText = '💎 AI-Strikt'; striktBtn.style = btnStyle;
     const kreativBtn = document.createElement('button'); kreativBtn.innerText = '🧪 AI-Kreativ'; kreativBtn.style = btnStyle;
     const gBtn = document.createElement('button'); gBtn.innerText = '🔍 Google'; gBtn.style = btnStyle;
     container.appendChild(striktBtn); container.appendChild(kreativBtn); container.appendChild(gBtn);
 
     function renderOverlay(info) {
-        overlay.innerHTML = `<h3 style="color:#fff; margin-top:0;">${info.name || 'Kein Name'}</h3><p style="font-size:14px; margin-bottom:20px;">${info.details || ''}</p><div style="display:flex; gap:10px; justify-content:center;"><button id="wb-btn" style="${btnStyle}">🔍 WB</button><button id="gl-btn" style="${btnStyle}">🌐 Reviews</button><button id="close-btn" style="${btnStyle} border-color:red; color:red;">✖</button></div>`;
+        overlay.innerHTML = `<h3 style="color:#fff; margin-top:0;">${info.name || 'Kein Treffer'}</h3><p style="font-size:14px; margin-bottom:20px;">${info.details || ''}</p><div style="display:flex; gap:10px; justify-content:center;"><button id="wb-btn" style="${btnStyle}">🔍 WB</button><button id="gl-btn" style="${btnStyle}">🌐 Reviews</button><button id="close-btn" style="${btnStyle} border-color:red; color:red;">✖</button></div>`;
         overlay.style.display = 'block';
         document.getElementById('wb-btn').onclick = () => window.open(`https://www.whiskybase.com/search?q=${encodeURIComponent(info.name)}`, '_blank');
         document.getElementById('gl-btn').onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(info.name + " review")}`, '_blank');
         document.getElementById('close-btn').onclick = () => overlay.style.display = 'none';
     }
 
-    async function callGemini(mode, model, promptText) {
-        return new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-                method: "POST",
-                url: `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`,
-                headers: { "Content-Type": "application/json" },
-                data: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }),
-                onload: (res) => {
-                    try {
-                        const json = JSON.parse(res.responseText);
-                        const text = json.candidates[0].content.parts[0].text;
-                        resolve(text.replace(/```json/g, "").replace(/```/g, "").replace(/'/g, '"').trim());
-                    } catch(e) { reject(e); }
-                },
-                onerror: reject
-            });
-        });
-    }
-
     async function runAISearch(mode) {
         const sel = window.getSelection().toString().trim();
         const isStrikt = (mode === 'strikt');
-        (isStrikt ? striktBtn : kreativBtn).innerText = '⏳ ...';
+        const key = getApiKey();
+        if (!key) return;
+
+        // Lokales Pre-Filtering
+        if (isStrikt) {
+            const selLower = sel.toLowerCase();
+            const hasMatch = whiskySources.some(s => selLower.includes(s.toLowerCase()));
+            if (!hasMatch) {
+                alert("Kein Datenbank-Treffer gefunden.");
+                return;
+            }
+        }
+
+        const statusEl = isStrikt ? striktBtn : kreativBtn;
+        statusEl.innerText = '⏳ ...';
         container.style.display = 'none';
 
-        let dbContext = isStrikt ? (whiskyDB.find(i => i.name && sel.toLowerCase().includes(i.name.toLowerCase())) || "Kein Treffer") : "";
-        const prompt = isStrikt ? 
-            `Extrahiere Infos aus: "${sel}". DB: ${JSON.stringify(dbContext)}. Antworte NUR als JSON: {"name": "Name + Jahr", "details": "Fass"}.` :
-            `Analysiere: "${sel}". Antworte NUR als JSON: {"name": "Titel", "details": "Zusammenfassung"}.`;
+        const systemPrompt = isStrikt ?
+            `Du bist ein strikter Filter. ERLAUBT: Nur Begriffe aus dieser Liste: [${whiskySources.join(", ")}] UND EINE Jahreszahl (19XX/20XX). VERBOTEN: Bottling, Matured, Vol, ml, Cask, Fass, etc. JSON-Format: {"name": "Name + Jahr", "details": "Nur Fass/Stärke"}.` :
+            "Du bist ein Whisky-Experte. Antworte NUR als valides JSON: {'name': 'Titel + Details', 'details': 'Zusammenfassung'}.";
 
-        // Fallback-Logik: Erst 1.5-Flash, dann 1.5-Pro
-        try {
-            const raw = await callGemini(mode, "gemini-1.5-flash", prompt);
-            renderOverlay(JSON.parse(raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1)));
-        } catch(e) {
-            console.warn("Flash fehlgeschlagen, versuche Pro...");
-            const raw = await callGemini(mode, "gemini-1.5-pro", prompt);
-            renderOverlay(JSON.parse(raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1)));
-        }
-        (isStrikt ? striktBtn : kreativBtn).innerText = isStrikt ? '💎 AI-Strikt' : '🧪 AI-Kreativ';
+        GM_xmlhttpRequest({
+            method: "POST",
+            url: "https://api.openai.com/v1/chat/completions",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
+            data: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [{ role: "system", content: systemPrompt }, { role: "user", content: `Extrahiere aus: "${sel}"` }]
+            }),
+            onload: (res) => {
+                try {
+                    const data = JSON.parse(res.responseText);
+                    let raw = data.choices[0].message.content.replace(/```json/g, "").replace(/```/g, "").replace(/'/g, '"').trim();
+                    renderOverlay(JSON.parse(raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1)));
+                } catch(e) { console.error("Parse-Fehler", e); }
+                statusEl.innerText = isStrikt ? '💎 AI-Strikt' : '🧪 AI-Kreativ';
+            }
+        });
     }
 
     striktBtn.addEventListener('click', () => runAISearch('strikt'));
@@ -94,7 +118,8 @@
 
     document.addEventListener('mouseup', (e) => {
         setTimeout(() => {
-            if (window.getSelection().toString().trim().length > 3) container.style.display = 'flex';
+            let sel = window.getSelection().toString().trim();
+            if (sel.length > 3) container.style.display = 'flex';
             else if (!container.contains(e.target)) container.style.display = 'none';
         }, 150);
     }, true);
