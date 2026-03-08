@@ -45,7 +45,7 @@
 
      async function getDB() {
             try {
-                const response = await fetch('https://api.github.com/gists/DEINE_GIST_ID');
+                const response = await fetch('https://api.github.com/gists/5dd08669d7d4b4a9f3b25d1b98e91120');
                 if (!response.ok) throw new Error("Gist nicht gefunden. ID korrekt?");
                 
                 const data = await response.json();
