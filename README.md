@@ -1,3 +1,7 @@
+
+
+Tampermonkey-Edition for your Browser
+
 Installation Guide: Whiskybase Ultimate AI (V30.2)
 This script helps you analyze whisky information on any website at lightning speed. It cross-references data with your personal distillery database or evaluates it using state-of-the-art AI (Gemini 2.0 Flash).
 
@@ -84,7 +88,8 @@ Happy researching! 🥃
 
 German: 
 
-Hier ist die aktualisierte Anleitung. Ich habe sie exakt auf den neuen Prozess angepasst, bei dem der API-Key sicher über eine Abfrage direkt im Browser eingegeben wird, statt den Programmcode bearbeiten zu müssen.
+Tampermonkey-Edition für den Browser:
+
 
 Installationsanleitung: Whiskybase Ultimate AI (V30.2)
 Dieses Skript hilft dir, Whisky-Informationen auf jeder Webseite blitzschnell zu analysieren, mit deiner persönlichen Whisky-Datenbank abzugleichen oder via modernster KI (Gemini 2.0 Flash) zu bewerten.
@@ -167,4 +172,103 @@ Ein Ergebnis-Popup erscheint mit folgenden Optionen:
 
 Tipp: Falls du deinen API-Key jemals ändern möchtest, kannst du das Skript in Tampermonkey einfach kurz löschen und neu einfügen – dann fragt es beim nächsten Mal wieder nach dem Key.
 
-Viel Erfolg beim Recherchieren! 🥃
+
+Smartphone Edition for Android/Ios
+
+Installation Guide
+1. Android Setup
+Android allows you to pass highlighted text to your web app using the "URL Forwarder" app.
+
+Prerequisite: Download Forwarder from the Play Store.
+
+Configure the App:
+
+Tap Add New.
+
+Name: "Whisky Analysis".
+
+Regex / URL Pattern: .* (This captures any text you share).
+
+URL: Your Web URL + parameter: https://your-domain.com/index.html?text=%s
+
+Note: The %s acts as a placeholder for the selected text.
+
+Usage:
+
+Highlight any text in an app or browser.
+
+Tap Share.
+
+Select URL Forwarder. Done!
+
+2. iPhone (iOS) Setup
+On iPhone, we use the built-in "Shortcuts" app.
+
+Create Shortcut:
+
+Open the Shortcuts app and create a new one ("+").
+
+Add the action "Open URLs".
+
+Enter your URL: https://your-domain.com/index.html?text= and append the variable "Shortcut Input" at the end.
+
+In the Shortcut settings, enable "Show in Share Sheet" and set it to accept "Text".
+
+Usage:
+
+Highlight text -> Tap Share -> Select your custom Shortcut.
+
+
+Smartphone Variante für Android/Ios
+
+
+Installationsanleitung
+Mit diesem Assistenten kannst du jeden Whisky-Text auf deinem Smartphone markieren, an die KI senden, analysieren lassen und direkt bei Google oder Whiskybase suchen.
+
+1. Einrichtung auf Android
+Android bietet mit der App "URL Forwarder" die Möglichkeit, Text-Selektionen direkt an deine Web-App zu übergeben.
+
+Voraussetzung: Lade die App Forwarder aus dem Play Store.
+
+App öffnen & Konfigurieren:
+
+Tippe auf Add New.
+
+Name: "Whisky Analyse".
+
+Regex / URL Pattern: .* (das bedeutet: der Forwarder nimmt jeden Text, den du teilst).
+
+URL: Deine Web-URL + den Parameter, z.B.: https://deine-domain.de/index.html?text=%s
+
+Wichtig: Das %s am Ende ist der Platzhalter für den Text, den du markierst.
+
+Benutzung:
+
+Markiere einen Text (z.B. in einer E-Mail oder einem Browser).
+
+Tippe auf Teilen (Share).
+
+Wähle URL Forwarder aus. Fertig!
+
+2. Einrichtung auf iPhone (iOS)
+Auf dem iPhone nutzen wir die "Kurzbefehle" (Shortcuts) App, da sie nativ in iOS integriert ist.
+
+Kurzbefehl erstellen:
+
+Öffne die Kurzbefehle-App und erstelle einen neuen Befehl ("+").
+
+Suche nach der Aktion "Im Teilen-Blatt zeigen" (unter "Teilen").
+
+Wähle die Aktion "URL öffnen".
+
+Gib deine URL ein: https://deine-domain.de/index.html?text= und wähle dahinter als Variable den "Kurzbefehl-Eingang".
+
+Stelle sicher, dass unter "Teilen-Blatt" die Option "Text" aktiviert ist.
+
+Benutzung:
+
+Markiere Text -> Teilen -> Wähle deinen neuen Kurzbefehl.
+
+
+
+
