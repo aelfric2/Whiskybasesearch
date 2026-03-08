@@ -21,7 +21,7 @@
     <div class="card">
         <h3>Whisky Analyse</h3>
         <p id="input-text">Lade...</p>
-        <input type="password" id="api-key-input" placeholder="API-Key hier einfügen (sk-... oder Google)">
+        <input type="password" id="api-key-input" placeholder="API-Key hier einfügen">
         <button class="btn-reset" onclick="resetKey()">Key löschen</button>
     </div>
 
@@ -37,71 +37,84 @@
         const params = new URLSearchParams(window.location.search);
         const rawText = params.get('text') || "";
         const text = rawText.replace(/['"]/g, '').trim();
+        let cleanedName = ""; // Speichert den bereinigten Namen für Suchen
         
         const inputField = document.getElementById('api-key-input');
         inputField.value = localStorage.getItem('API_KEY') || "";
         
         document.getElementById('input-text').innerText = text ? "Text: " + text : "Kein Text übergeben";
 
-     async function getDB() {
+        async function getDB() {
             try {
                 const response = await fetch('https://api.github.com/gists/5dd08669d7d4b4a9f3b25d1b98e91120');
-                if (!response.ok) throw new Error("Gist nicht gefunden. ID korrekt?");
-                
                 const data = await response.json();
-                
-                // Sicherheits-Check: Gibt es 'files'?
-                if (!data.files || Object.keys(data.files).length === 0) {
-                    throw new Error("Gist ist leer oder konnte nicht gelesen werden.");
-                }
-
                 const fileName = Object.keys(data.files)[0];
                 return data.files[fileName].content;
             } catch (err) {
-                console.error(err);
-                return "FEHLER_BEI_DATENBANK_ABRUF: " + err.message;
+                return "";
             }
         }
+
         async function analyze(mode) {
             if (!text) return alert("Kein Text vorhanden!");
-            
             let key = inputField.value.trim();
-            if (!key) return alert("Bitte API-Key in das Feld oben eingeben!");
-            
+            if (!key) return alert("Bitte API-Key eingeben!");
             localStorage.setItem('API_KEY', key);
+
             document.getElementById('output').innerText = "KI denkt nach...";
 
-            try {
-                const db = await getDB();
-                let prompt = (mode === 'strikt') 
-                    ? `Du bist ein Datenbank-Experte für Whiskys. Suche den Whisky "${text}" in dieser Datenbank: ${db}. Regeln: 1. Vergleiche den Namen "${text}" sehr tolerant mit den Einträgen. 2. Wenn gefunden, antworte NUR: "Brennerei + Abfüller + Jahr". 3. Wenn absolut nicht gefunden, antworte NUR: "Nicht in meiner Datenbank gefunden." 4. Antworte niemals mit erklärenden Sätzen.`
-                    : "Analysiere diese Whisky-Infos: " + text + ". Gib eine kurze, präzise Zusammenfassung.";
+            const dbContent = await getDB();
+            const lines = dbContent.split('\n');
+            // Suche: Finde die Zeile, die den ersten Teil des Textes enthält
+            const match = lines.find(line => line.toLowerCase().includes(text.split(' ')[0].toLowerCase()));
 
-                let response;
+            if (mode === 'strikt' && !match) {
+                document.getElementById('output').innerText = "Nicht in meiner Datenbank gefunden.";
+                return;
+            }
+
+            const inputToAI = mode === 'strikt' ? match : text;
+            const prompt = mode === 'strikt' 
+                ? `Formatiere diesen Datenbank-Eintrag exakt nach Schema: "Brennerei + Abfüller + Jahr". Nur das Ergebnis, keine anderen Worte. Eintrag: ${inputToAI}`
+                : "Analysiere diese Whisky-Infos: " + inputToAI;
+
+            try {
+                let responseText = "";
                 if (key.startsWith('sk-')) {
-                    response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
                         body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }] })
                     });
                     const data = await response.json();
-                    document.getElementById('output').innerText = data.choices[0].message.content;
+                    responseText = data.choices[0].message.content;
                 } else {
-                    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     });
                     const data = await response.json();
-                    document.getElementById('output').innerText = data.candidates[0].content.parts[0].text;
+                    responseText = data.candidates[0].content.parts[0].text;
                 }
+                
+                cleanedName = responseText.trim();
+                document.getElementById('output').innerText = cleanedName;
             } catch (error) {
                 document.getElementById('output').innerText = "Fehler: " + error.message;
             }
         }
 
-        function googleSearch() { if (text) window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(text + " Whiskybase"); }
-        function whiskybaseSearch() { if (text) window.location.href = "https://www.whiskybase.com/search?q=" + encodeURIComponent(text); }
+        function googleSearch() { 
+            const query = cleanedName || text;
+            window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(query + " Whiskybase"); 
+        }
+
+        function whiskybaseSearch() { 
+            const query = cleanedName || text;
+            window.location.href = "https://www.whiskybase.com/search?q=" + encodeURIComponent(query); 
+        }
+
         function resetKey() {
             localStorage.removeItem('API_KEY');
             inputField.value = "";
