@@ -27,9 +27,17 @@
     <div id="output" class="card">Ergebnis erscheint hier...</div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const text = params.get('text') || "Kein Text übergeben";
-        document.getElementById('input-text').innerText = "Text: " + text;
+       const params = new URLSearchParams(window.location.search);
+
+// 1. Text aus der URL holen
+let rawText = params.get('text') || "";
+
+// 2. Anführungszeichen entfernen, Leerzeichen trimmen und den String bereinigen
+const text = rawText.replace(/['"]/g, '').trim();
+
+// 3. Optional: Falls gar kein Text da ist, den Hinweis anzeigen
+const displayLabel = text || "Kein Text übergeben";
+document.getElementById('input-text').innerText = "Text: " + displayLabel;
 
         async function getDB() {
             const response = await fetch('https://api.github.com/gists/5dd08669d7d4b4a9f3b25d1b98e91120');
