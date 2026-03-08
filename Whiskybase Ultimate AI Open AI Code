@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Whiskybase Ultimate AI V30.1 (Secure & Filtered)
-// @version      30.1
-// @description  Sichere Key-Speicherung, lokales Pre-Filtering aller Kategorien & Cache-Buster
+// @name         Whiskybase Ultimate AI V30.3 (Final Polish)
+// @version      30.3
+// @description  Strikte Extraktion: Whitelist-Priorität, nur das erste Jahr eines Zeitraums, Alter als 2-stellige Zahl.
 // @author       Gemini
 // @match        *://*/*
 // @grant        GM_xmlhttpRequest
@@ -16,7 +16,6 @@
     const DB_URL = 'https://gist.githubusercontent.com/aelfric2/5dd08669d7d4b4a9f3b25d1b98e91120/raw/whiskydb.json';
     let whiskySources = [];
 
-    // Key sicher verwalten
     function getApiKey() {
         let key = GM_getValue('openai_key', null);
         if (!key) {
@@ -26,14 +25,12 @@
         return key;
     }
 
-    // Datenbank laden mit Cache-Buster (?t=Timestamp)
     GM_xmlhttpRequest({
         method: "GET",
         url: DB_URL + "?t=" + Date.now(),
         onload: (res) => {
             try {
                 const data = JSON.parse(res.responseText);
-                // Alles aus der JSON-Datei in ein flaches Array packen
                 let allTerms = [];
                 Object.keys(data).forEach(key => {
                     if (Array.isArray(data[key])) {
@@ -47,7 +44,6 @@
     });
 
     const btnStyle = "padding:6px 12px; background:#1a1a1a; color:#c9a050; border:1px solid #c9a050; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin:3px;";
-
     const overlay = document.createElement('div');
     overlay.style = 'position:fixed; top:50%; left:50%; transform:translate(-50%, -120%); width:400px; background:#1a1a1a; color:#c9a050; border:2px solid #c9a050; padding:20px; z-index:2147483649; border-radius:10px; display:none; box-shadow: 0 0 20px rgba(0,0,0,0.8); font-family:sans-serif; text-align:center;';
     document.body.appendChild(overlay);
@@ -75,11 +71,11 @@
         const key = getApiKey();
         if (!key) return;
 
-        // Lokales Pre-Filtering
+        let foundTerms = [];
         if (isStrikt) {
             const selLower = sel.toLowerCase();
-            const hasMatch = whiskySources.some(s => selLower.includes(s.toLowerCase()));
-            if (!hasMatch) {
+            foundTerms = whiskySources.filter(s => selLower.includes(s.toLowerCase()));
+            if (foundTerms.length === 0) {
                 alert("Kein Datenbank-Treffer gefunden.");
                 return;
             }
@@ -90,7 +86,16 @@
         container.style.display = 'none';
 
         const systemPrompt = isStrikt ?
-            `Du bist ein strikter Filter. ERLAUBT: Nur Begriffe aus dieser Liste: [${whiskySources.join(", ")}] UND EINE Jahreszahl (19XX/20XX). VERBOTEN: Bottling, Matured, Vol, ml, Cask, Fass, etc. JSON-Format: {"name": "Name + Jahr", "details": "Nur Fass/Stärke"}.` :
+            `Du bist ein strikter Datenbank-Parser.
+            Input: "${sel}"
+            Whitelist: "${foundTerms.join(", ")}"
+            Aufgabe: Erstelle einen Suchstring nach Schema: [Whitelist-Begriffe] [Erstes Jahr] [Alter].
+            REGELN:
+            1. Whitelist-Begriffe MÜSSEN übernommen werden.
+            2. Jahreszahl: Nimm NUR das erste Jahr eines Zeitraums (z.B. bei "2009/2025" -> "2009").
+            3. Alter: Extrahiere die Zahl vor "y.o.", "Jahre" oder "years". Format: 2-stellig (z.B. "15").
+            4. VERBOTEN: Alles andere, wie "y.o.", "Jahre", "years", "Cask", "Fass", "Finish", "PST", "SMoS", "Hogshead".
+            5. Ausgabe: JSON {"name": "Whitelist-Begriffe Jahr Alter", "details": "Alter-Zahl"}.` :
             "Du bist ein Whisky-Experte. Antworte NUR als valides JSON: {'name': 'Titel + Details', 'details': 'Zusammenfassung'}.";
 
         GM_xmlhttpRequest({
@@ -99,7 +104,7 @@
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             data: JSON.stringify({
                 model: "gpt-4o-mini",
-                messages: [{ role: "system", content: systemPrompt }, { role: "user", content: `Extrahiere aus: "${sel}"` }]
+                messages: [{ role: "system", content: systemPrompt }, { role: "user", content: `Input: "${sel}"` }]
             }),
             onload: (res) => {
                 try {
