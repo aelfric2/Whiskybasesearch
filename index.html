@@ -34,18 +34,14 @@
     <button class="btn-whiskybase" onclick="whiskybaseSearch()">🥃 Whiskybase Suche</button>
 
     <script>
-        // Variablen für den Text
         let text = "";
         let cleanedName = "";
         const inputField = document.getElementById('api-key-input');
 
-        // Initialisierung beim Laden der Seite
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             const rawText = params.get('text') || "";
-            // Dekodierung der URL-Parameter
             text = decodeURIComponent(rawText.replace(/\+/g, ' ')).replace(/['"]/g, '').trim();
-            
             inputField.value = localStorage.getItem('API_KEY') || "";
             document.getElementById('input-text').innerText = text ? "Text: " + text : "Kein Text übergeben";
         };
@@ -65,22 +61,20 @@
             if (!key) return alert("Bitte API-Key eingeben!");
             localStorage.setItem('API_KEY', key);
 
-            document.getElementById('output').innerText = "KI denkt nach...";
+            document.getElementById('output').innerText = "KI filtert Begriffe...";
 
             const dbContent = await getDB();
-            const lines = dbContent.split('\n');
-            const match = lines.find(line => text.toLowerCase().includes(line.toLowerCase().split(' ')[0]));
-
-            if (mode === 'strikt' && !match) {
-                document.getElementById('output').innerText = "Nicht in meiner Datenbank gefunden.";
-                return;
-            }
-
-            const inputToAI = mode === 'strikt' ? match : text;
+            
+            // Neuer, extrem robuster Prompt
             const prompt = mode === 'strikt' 
-                ? `Du bist eine reine Extraktions-Maschine. Input: "${text}". DB-Referenz: "${inputToAI}".
-                Regeln: 1. Extrahiere NUR Begriffe aus der Referenz. 2. Niedrigstes Jahr zuerst. 3. Format: "Brennerei + [Abfüller optional] + Jahr". 4. Keine Erklärungen.`
-                : "Analysiere diese Whisky-Infos: " + inputToAI;
+                ? `Input-Text: "${text}"
+                Datenbank-Whitelist: "${dbContent}"
+                Aufgabe:
+                1. Extrahiere NUR Wörter aus dem Input-Text, die auch in der Whitelist vorkommen.
+                2. Extrahiere die kleinste Jahreszahl (Destillationsjahr).
+                3. Ausgabe: Eine einfache Leerzeichen-getrennte Liste (z.B. "Imperial Signatory 1995"). 
+                4. Keine Erklärungen, keine Satzzeichen, keine Extra-Wörter.`
+                : "Analysiere diese Whisky-Infos: " + text;
 
             try {
                 let responseText = "";
@@ -101,7 +95,7 @@
                     const data = await response.json();
                     responseText = data.candidates[0].content.parts[0].text;
                 }
-                cleanedName = responseText.trim();
+                cleanedName = responseText.replace(/[^a-zA-Z0-9 ]/g, '').trim();
                 document.getElementById('output').innerText = cleanedName;
             } catch (error) { document.getElementById('output').innerText = "Fehler: " + error.message; }
         }
