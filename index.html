@@ -30,8 +30,8 @@
 
     <div id="output" class="card">Ergebnis erscheint hier...</div>
 
-    <button class="btn-google" onclick="googleSearch()">🔍 Google Suche</button>
-    <button class="btn-whiskybase" onclick="whiskybaseSearch()">🥃 Whiskybase Suche</button>
+    <button class="btn-google" onclick="googleSearch()">🔍 Google Suche (Original)</button>
+    <button class="btn-whiskybase" onclick="whiskybaseSearch()">🥃 Whiskybase Suche (KI-Bereinigt)</button>
 
     <script>
         let text = "";
@@ -60,21 +60,14 @@
             let key = inputField.value.trim();
             if (!key) return alert("Bitte API-Key eingeben!");
             localStorage.setItem('API_KEY', key);
-
-            document.getElementById('output').innerText = "KI filtert Begriffe...";
+            document.getElementById('output').innerText = "KI extrahiert Begriffe...";
 
             const dbContent = await getDB();
             
-            // Neuer, extrem robuster Prompt
+            // Deterministischer Prompt mit Temperatur 0
             const prompt = mode === 'strikt' 
-                ? `Input-Text: "${text}"
-                Datenbank-Whitelist: "${dbContent}"
-                Aufgabe:
-                1. Extrahiere NUR Wörter aus dem Input-Text, die auch in der Whitelist vorkommen.
-                2. Extrahiere die kleinste Jahreszahl (Destillationsjahr).
-                3. Ausgabe: Eine einfache Leerzeichen-getrennte Liste (z.B. "Imperial Signatory 1995"). 
-                4. Keine Erklärungen, keine Satzzeichen, keine Extra-Wörter.`
-                : "Analysiere diese Whisky-Infos: " + text;
+                ? `Input-Text: "${text}"\nWhitelist: "${dbContent}"\nAufgabe: Extrahiere nur Wörter aus der Whitelist und das Destillationsjahr. Ausgabe: "Brennerei + Abfüller + Jahr". Beispiel: "Teerenpeli 2013 Best Dram". Keine Erklärung.`
+                : "Analysiere: " + text;
 
             try {
                 let responseText = "";
@@ -82,7 +75,11 @@
                     const response = await fetch('https://api.openai.com/v1/chat/completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-                        body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }] })
+                        body: JSON.stringify({ 
+                            model: "gpt-4o-mini", 
+                            temperature: 0, 
+                            messages: [{ role: "user", content: prompt }] 
+                        })
                     });
                     const data = await response.json();
                     responseText = data.choices[0].message.content;
@@ -90,7 +87,10 @@
                     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                        body: JSON.stringify({ 
+                            contents: [{ parts: [{ text: prompt }] }], 
+                            generationConfig: { temperature: 0 } 
+                        })
                     });
                     const data = await response.json();
                     responseText = data.candidates[0].content.parts[0].text;
@@ -100,9 +100,22 @@
             } catch (error) { document.getElementById('output').innerText = "Fehler: " + error.message; }
         }
 
-        function googleSearch() { window.location.href = "https://www.google.com/search?q=" + encodeURIComponent((cleanedName || text) + " Whiskybase"); }
-        function whiskybaseSearch() { window.location.href = "https://www.whiskybase.com/search?q=" + encodeURIComponent(cleanedName || text); }
-        function resetKey() { localStorage.removeItem('API_KEY'); inputField.value = ""; alert("Key gelöscht."); }
+        // Google nutzt immer den Original-Text + Zusatz "Whiskybase"
+        function googleSearch() { 
+            window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(text + " Whiskybase"); 
+        }
+
+        // Whiskybase nutzt bevorzugt den bereinigten Namen
+        function whiskybaseSearch() { 
+            const searchName = cleanedName || text;
+            window.location.href = "https://www.whiskybase.com/search?q=" + encodeURIComponent(searchName); 
+        }
+
+        function resetKey() { 
+            localStorage.removeItem('API_KEY'); 
+            inputField.value = ""; 
+            alert("Key gelöscht."); 
+        }
     </script>
 </body>
 </html>
