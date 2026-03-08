@@ -12,7 +12,7 @@
         .btn-kreativ { background: #27ae60; }
         .btn-google { background: #3498db; }
         .btn-reset { background: #e74c3c; font-size: 12px; padding: 5px; }
-        #output { text-align: left; white-space: pre-wrap; margin-top: 20px; }
+        #output { text-align: left; white-space: pre-wrap; margin-top: 20px; padding: 15px; border-radius: 8px; background: #fff; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
@@ -36,7 +36,7 @@
         
         document.getElementById('input-text').innerText = text ? "Text: " + text : "Kein Text übergeben";
 
-        // Gist auslesen (automatisch die erste Datei)
+        // Gist auslesen
         async function getDB() {
             const response = await fetch('https://api.github.com/gists/5dd08669d7d4b4a9f3b25d1b98e91120');
             const data = await response.json();
@@ -47,9 +47,20 @@
         async function analyze(mode) {
             if (!text) return alert("Kein Text vorhanden!");
             
-            let prompt = mode === 'strikt' 
-                ? "Nutze diese Datenbank: " + await getDB() + ". Formatiere den Whisky exakt nach Schema: Brennerei + Abfüller + Jahr. Hier der Text: " + text
-                : "Analysiere diese Tasting Notes oder Whisky-Infos: " + text;
+            const db = await getDB();
+            
+            let prompt;
+            if (mode === 'strikt') {
+                prompt = `Du bist ein strenger Datenbank-Analyst. 
+                Prüfe, ob der Whisky im Text in dieser Datenbank vorhanden ist: ${db}.
+                Regeln:
+                1. Wenn der Whisky nicht in der Datenbank ist, antworte ausschließlich mit: "Nicht in meiner Datenbank gefunden."
+                2. Wenn er gefunden wurde, antworte NUR in diesem Schema: "Brennerei + Abfüller + Jahr".
+                3. Keine weiteren Erklärungen.
+                Hier ist der Whisky: ${text}`;
+            } else {
+                prompt = "Analysiere diese Whisky-Tasting-Notes oder Infos und gib eine kurze, präzise Zusammenfassung: " + text;
+            }
             
             let key = localStorage.getItem('API_KEY') || prompt("Bitte API-Key eingeben (sk-... für OpenAI oder Google Key):");
             if (!key) return;
