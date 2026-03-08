@@ -12,6 +12,7 @@
         .btn-strikt { background: #2c3e50; }
         .btn-kreativ { background: #27ae60; }
         .btn-google { background: #3498db; }
+        .btn-whiskybase { background: #e67e22; }
         .btn-reset { background: #e74c3c; width: auto; padding: 5px 10px; font-size: 12px; display: inline-block; }
         #output { text-align: left; white-space: pre-wrap; margin-top: 20px; padding: 15px; border-radius: 8px; background: #fff; border: 1px solid #ddd; }
     </style>
@@ -20,18 +21,19 @@
     <div class="card">
         <h3>Whisky Analyse</h3>
         <p id="input-text">Lade...</p>
-        <input type="text" id="api-key-input" placeholder="API-Key hier einfügen (sk-... oder Google)">
+        <input type="password" id="api-key-input" placeholder="API-Key hier einfügen (sk-... oder Google)">
         <button class="btn-reset" onclick="resetKey()">Key löschen</button>
     </div>
 
     <button class="btn-strikt" onclick="analyze('strikt')">💎 AI-Strikt (Datenbank)</button>
     <button class="btn-kreativ" onclick="analyze('kreativ')">🧪 AI-Kreativ</button>
-    <button class="btn-google" onclick="googleSearch()">🔍 Google</button>
 
     <div id="output" class="card">Ergebnis erscheint hier...</div>
 
+    <button class="btn-google" onclick="googleSearch()">🔍 Google Suche</button>
+    <button class="btn-whiskybase" onclick="whiskybaseSearch()">🥃 Whiskybase Suche</button>
+
     <script>
-        // Initialisierung
         const params = new URLSearchParams(window.location.search);
         const rawText = params.get('text') || "";
         const text = rawText.replace(/['"]/g, '').trim();
@@ -42,7 +44,7 @@
         document.getElementById('input-text').innerText = text ? "Text: " + text : "Kein Text übergeben";
 
         async function getDB() {
-            const response = await fetch('https://api.github.com/gists/5dd08669d7d4b4a9f3b25d1b98e91120');
+            const response = await fetch('https://api.github.com/gists/DEINE_GIST_ID');
             const data = await response.json();
             const fileName = Object.keys(data.files)[0];
             return data.files[fileName].content;
@@ -55,18 +57,16 @@
             if (!key) return alert("Bitte API-Key in das Feld oben eingeben!");
             
             localStorage.setItem('API_KEY', key);
-
             document.getElementById('output').innerText = "KI denkt nach...";
 
             try {
                 const db = await getDB();
                 let prompt = (mode === 'strikt') 
-                    ? `Du bist ein strenger Datenbank-Analyst. Prüfe, ob der Whisky im Text in dieser Datenbank vorhanden ist: ${db}. Regeln: 1. Wenn nicht gefunden, antworte NUR mit: "Nicht in meiner Datenbank gefunden." 2. Wenn gefunden, antworte NUR: "Brennerei + Abfüller + Jahr". 3. Keine weiteren Erklärungen. Hier der Whisky: ${text}`
-                    : "Analysiere diese Whisky-Tasting-Notes oder Infos und gib eine kurze, präzise Zusammenfassung: " + text;
+                    ? `Du bist ein Datenbank-Experte für Whiskys. Suche den Whisky "${text}" in dieser Datenbank: ${db}. Regeln: 1. Vergleiche den Namen "${text}" sehr tolerant mit den Einträgen. 2. Wenn gefunden, antworte NUR: "Brennerei + Abfüller + Jahr". 3. Wenn absolut nicht gefunden, antworte NUR: "Nicht in meiner Datenbank gefunden." 4. Antworte niemals mit erklärenden Sätzen.`
+                    : "Analysiere diese Whisky-Infos: " + text + ". Gib eine kurze, präzise Zusammenfassung.";
 
                 let response;
                 if (key.startsWith('sk-')) {
-                    // OpenAI Pfad
                     response = await fetch('https://api.openai.com/v1/chat/completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
@@ -75,7 +75,6 @@
                     const data = await response.json();
                     document.getElementById('output').innerText = data.choices[0].message.content;
                 } else {
-                    // Gemini Pfad
                     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -89,10 +88,8 @@
             }
         }
 
-        function googleSearch() { 
-            if (text) window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(text + " Whiskybase"); 
-        }
-
+        function googleSearch() { if (text) window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(text + " Whiskybase"); }
+        function whiskybaseSearch() { if (text) window.location.href = "https://www.whiskybase.com/search?q=" + encodeURIComponent(text); }
         function resetKey() {
             localStorage.removeItem('API_KEY');
             inputField.value = "";
