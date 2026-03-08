@@ -1,5 +1,3 @@
-Sure thing! Here is the 1:1 translation of the updated guide into English, tailored for international users or for your documentation.
-
 Installation Guide: Whiskybase Ultimate AI (V30.2)
 This script helps you analyze whisky information on any website at lightning speed. It cross-references data with your personal distillery database or evaluates it using state-of-the-art AI (Gemini 2.0 Flash).
 
