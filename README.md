@@ -7,6 +7,7 @@ Installation Guide: Whiskybase Ultimate AI (V30.2)
 This script helps you analyze whisky information on any website at lightning speed. It cross-references data with your personal distillery database or evaluates it using state-of-the-art AI (Gemini 2.0 Flash).
 
 1. Prerequisites: Install Tampermonkey
+
 First, you need to install a "script manager" to run the script in your browser.
 
 For Chrome / Edge / Brave / Opera: Go to the Chrome Web Store, search for Tampermonkey, and click "Add to Chrome."
@@ -14,6 +15,7 @@ For Chrome / Edge / Brave / Opera: Go to the Chrome Web Store, search for Tamper
 For Firefox: Go to the Firefox Add-ons Store, search for Tampermonkey, and click "Add to Firefox."
 
 2. Create a Gemini API Key (Free)
+
 The script uses Google's latest AI to perform the analysis.
 
 Visit Google AI Studio.
