@@ -2,11 +2,11 @@ These are different scripts to create clean Searchstrings for Whiskybase and goo
 
 Nachfolgend verschiedene Scripts um die Suche nach Informationen über bestimmte Abfüllungen in der Whiskybase einfacher zu gestalten. Nach Markierung der Informationen erscheint im Browser ein Popup mit mehreren Suchmöglichkeiten über Google oder in der Whiskybase nach Bereinigung der Informationen durch KI. Die mobile Variante funktioniert ähnlich, ist aber funktional etwas eingeschränkter. Benötigt werden Tampermonkey für den Browser oder URL Forwarder für das Smartphone sowie API-Keys von Gemini (kostenlos oder Bezahlvariante) oder OpenAI (nicht kostenlos). Der Code findet sich hier in der Repository, die mobile Variante läuft über die ebenfalls hier gehostete Indexdatei.
 
-Tampermonkey-Edition for your Browser
-Installation Guide: Whiskybase Ultimate AI (V30.2)
+# Tampermonkey-Edition for your Browser
+**Installation Guide: Whiskybase Ultimate AI (V30.2)**
 This script helps you analyze whisky information on any website at lightning speed. It cross-references data with your personal distillery database or evaluates it using state-of-the-art AI (Gemini 2.0 Flash).
 
-1. Prerequisites: Install Tampermonkey
+## 1. Prerequisites: Install Tampermonkey
 
 First, you need to install a "script manager" to run the script in your browser.
 
@@ -14,7 +14,7 @@ For Chrome / Edge / Brave / Opera: Go to the Chrome Web Store, search for Tamper
 
 For Firefox: Go to the Firefox Add-ons Store, search for Tampermonkey, and click "Add to Firefox."
 
-2. Create a Gemini API Key (Free)
+## 2. Create a Gemini API Key (Free)
 
 The script uses Google's latest AI to perform the analysis.
 
@@ -28,7 +28,7 @@ Click on "Create API key."
 
 Copy the key (a long string of characters). Important: You no longer need to paste this into the code! Just keep it ready for Step 4.
 
-3. Setup Script in Tampermonkey
+## 3. Setup Script in Tampermonkey
 
 Click the Tampermonkey icon at the top right of your browser.
 
@@ -40,7 +40,7 @@ Copy the current source code (Version 30.2) and paste it there.
 
 Press Ctrl + S (or File > Save) to save and activate the script.
 
-4. One-time Activation (Entering the Key)
+## 4. One-time Activation (Entering the Key)
 
 Go to any website (e.g., a whisky shop or blog).
 
@@ -52,7 +52,7 @@ Paste your copied API key and confirm with OK.
 
 The script will now securely remember the key in the background—you won't have to enter it again.
 
-5. How it Works
+## 5. How it Works
 Whenever you highlight text (at least 4 characters), an elegant black selection bar appears:
 
 💎 AI-Strikt (Database Mode): The AI (Gemini 2.0 Flash) cross-references the highlighted text exactly with your stored distillery database. Goal: Perfect formatting according to your standard (Distillery + Year). Benefit: Ideal for filtering clean names for Whiskybase searches out of chaotic shop listings.
@@ -64,11 +64,11 @@ Whenever you highlight text (at least 4 characters), an elegant black selection 
 .
 .
 .
-Tampermonkey-Edition für den Browser
-Installationsanleitung: Whiskybase Ultimate AI (V30.2)
+# Tampermonkey-Edition für den Browser
+**Installationsanleitung: Whiskybase Ultimate AI (V30.2)**
 Dieses Skript hilft dir, Whisky-Informationen auf jeder Webseite blitzschnell zu analysieren, mit deiner persönlichen Whisky-Datenbank abzugleichen oder via modernster KI (Gemini 2.0 Flash) zu bewerten.
 
-1. Voraussetzungen: Tampermonkey installieren
+## 1. Voraussetzungen: Tampermonkey installieren
 
 Zuerst benötigst du den „Script-Manager“, der das Skript in deinem Browser ausführt.
 
@@ -76,7 +76,7 @@ Für Chrome / Edge / Brave / Opera: Gehe in den Chrome Web Store, suche nach Tam
 
 Für Firefox: Gehe zum Firefox Add-ons Store, suche nach Tampermonkey und klicke auf „Zu Firefox hinzufügen“.
 
-2. API-Key für Gemini (kostenlos) erstellen
+## 2. API-Key für Gemini (kostenlos) erstellen
 Das Skript nutzt die neueste Google-KI für die Analysen.
 
 Besuche das Google AI Studio.
@@ -89,7 +89,7 @@ Klicke auf "Create API key".
 
 Kopiere den Schlüssel (eine lange Zeichenfolge). Wichtig: Du musst ihn nicht mehr in den Code schreiben! Halte ihn einfach für Schritt 4 bereit.
 
-3. Skript in Tampermonkey einrichten
+## 3. Skript in Tampermonkey einrichten
 
 Klicke auf das Tampermonkey-Symbol oben rechts in deinem Browser.
 
@@ -101,7 +101,7 @@ Kopiere den aktuellen Quellcode (Version 30.2) und füge ihn dort ein.
 
 Drücke Strg + S (oder Datei > Speichern), um das Skript zu speichern.
 
-4. Einmalige Aktivierung (Key-Eingabe)
+## 4. Einmalige Aktivierung (Key-Eingabe)
 
 Gehe auf eine beliebige Webseite (z. B. einen Whisky-Shop oder Blog).
 
@@ -111,7 +111,7 @@ Sobald du eine der AI-Schaltflächen anklickst, öffnet sich ein Eingabefenster.
 
 Füge dort deinen kopierten API-Key ein und bestätige mit OK. Das Skript merkt sich den Key nun sicher im Hintergrund – du musst ihn nie wieder eingeben.
 
-5. Funktionserklärung
+## 5. Funktionserklärung
 Sobald du einen Text markierst (mind. 4 Zeichen), erscheint eine edle schwarze Auswahlleiste:
 
 💎 AI-Strikt (Datenbank-Modus): Gleicht den markierten Text exakt mit deiner hinterlegten Destillerie-Datenbank ab. Ziel: Perfekte Formatierung nach deinem Standard (Brennerei + Jahr). Nutzen: Ideal, um aus chaotischen Shop-Bezeichnungen den sauberen Namen für die Whiskybase-Suche zu filtern.
@@ -123,9 +123,9 @@ Sobald du einen Text markierst (mind. 4 Zeichen), erscheint eine edle schwarze A
 .
 .
 .
-Smartphone Edition for Android/Ios
-Installation Guide
-1. Android Setup
+#Smartphone Edition for Android/Ios
+**Installation Guide**
+## 1. Android Setup
 Android allows you to pass highlighted text to your web app using the "URL Forwarder" app.
 
 Prerequisite: Download Forwarder from the Play Store.
@@ -150,7 +150,7 @@ Tap Share.
 
 Select URL Forwarder. Done!
 
-2. iPhone (iOS) Setup
+## 2. iPhone (iOS) Setup
 On iPhone, we use the built-in "Shortcuts" app.
 
 Create Shortcut:
@@ -170,11 +170,11 @@ Highlight text -> Tap Share -> Select your custom Shortcut.
 .
 .
 .
-Smartphone Variante für Android/Ios
-Installationsanleitung
+#Smartphone Variante für Android/Ios
+**Installationsanleitung**
 Mit diesem Assistenten kannst du jeden Whisky-Text auf deinem Smartphone markieren, an die KI senden, analysieren lassen und direkt bei Google oder Whiskybase suchen.
 
-1. Einrichtung auf Android
+## 1. Einrichtung auf Android
 Android bietet mit der App "URL Forwarder" die Möglichkeit, Text-Selektionen direkt an deine Web-App zu übergeben.
 
 Voraussetzung: Lade die App Forwarder aus dem Play Store.
@@ -199,7 +199,7 @@ Tippe auf Teilen (Share).
 
 Wähle URL Forwarder aus. Fertig!
 
-2. Einrichtung auf iPhone (iOS)
+## 2. Einrichtung auf iPhone (iOS)
 Auf dem iPhone nutzen wir die "Kurzbefehle" (Shortcuts) App, da sie nativ in iOS integriert ist.
 
 Kurzbefehl erstellen:
