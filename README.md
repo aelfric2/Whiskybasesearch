@@ -66,6 +66,7 @@ Installationsanleitung: Whiskybase Ultimate AI (V30.2)
 Dieses Skript hilft dir, Whisky-Informationen auf jeder Webseite blitzschnell zu analysieren, mit deiner persönlichen Whisky-Datenbank abzugleichen oder via modernster KI (Gemini 2.0 Flash) zu bewerten.
 
 1. Voraussetzungen: Tampermonkey installieren
+
 Zuerst benötigst du den „Script-Manager“, der das Skript in deinem Browser ausführt.
 
 Für Chrome / Edge / Brave / Opera: Gehe in den Chrome Web Store, suche nach Tampermonkey und klicke auf „Hinzufügen“.
