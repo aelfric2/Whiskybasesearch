@@ -61,6 +61,9 @@ Whenever you highlight text (at least 4 characters), an elegant black selection 
 
 🔍 Google: Instantly performs a Google search and automatically appends "Whiskybase" to your search term.
 
+
+
+
 Tampermonkey-Edition für den Browser
 Installationsanleitung: Whiskybase Ultimate AI (V30.2)
 Dieses Skript hilft dir, Whisky-Informationen auf jeder Webseite blitzschnell zu analysieren, mit deiner persönlichen Whisky-Datenbank abzugleichen oder via modernster KI (Gemini 2.0 Flash) zu bewerten.
@@ -117,6 +120,9 @@ Sobald du einen Text markierst (mind. 4 Zeichen), erscheint eine edle schwarze A
 
 🔍 Google: Führt sofort eine Google-Suche durch und hängt automatisch "Whiskybase" an, um dich ohne Umwege zum Ziel zu bringen.
 
+
+
+
 Smartphone Edition for Android/Ios
 Installation Guide
 1. Android Setup
@@ -160,6 +166,9 @@ In the Shortcut settings, enable "Show in Share Sheet" and set it to accept "Tex
 Usage:
 
 Highlight text -> Tap Share -> Select your custom Shortcut.
+
+
+
 
 Smartphone Variante für Android/Ios
 Installationsanleitung
