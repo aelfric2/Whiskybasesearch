@@ -1,8 +1,10 @@
 *These are different scripts to create clean Searchstrings for Whiskybase and google after highlighting informations about a specific whisky in a shop or an auction. It works best in a browser but there is also a mobile version. You will need to install Tampermonkey/URL Forwarder and get a API-key from either Gemini or OpenAI. The code for the browser version can be found in the repository, the mobile version runs via the index.html hosted here.
+
 You don't need to use AI, the stripped down version would be just a slightly better google search for a whiskybase-entry.*
 
 *Nachfolgend verschiedene Scripts um die Suche nach Informationen über bestimmte Abfüllungen in der Whiskybase einfacher zu gestalten. Nach Markierung der Informationen erscheint im Browser ein Popup mit mehreren Suchmöglichkeiten über Google oder in der Whiskybase nach Bereinigung der Informationen durch KI. Die mobile Variante funktioniert ähnlich, ist aber funktional etwas eingeschränkter. Benötigt werden Tampermonkey für den Browser oder URL Forwarder für das Smartphone sowie API-Keys von Gemini (kostenlos oder Bezahlvariante) oder OpenAI (nicht kostenlos). Der Code findet sich hier in der Repository, die mobile Variante läuft über die ebenfalls hier gehostete Indexdatei.
-Man kann das Script natürlich auch ohne KI benutzen, dann ist es am Ende eine einfachere/präzisere Google-Suche nach dem passenden Eintrag in der Whiskybase*
+
+Man kann das Script natürlich auch ohne KI benutzen, dann ist es am Ende eine einfachere/präzisere Google-Suche nach dem passenden Eintrag in der Whiskybase.*
 
 # Tampermonkey-Edition for your Browser
 **Installation Guide: Whiskybase Ultimate AI (V30.2)**
